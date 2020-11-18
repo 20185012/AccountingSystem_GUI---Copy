@@ -1,11 +1,13 @@
 package Hibernate;
 
+import Model.Category;
 import Model.Payment;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentHibernate {
@@ -62,11 +64,11 @@ public class PaymentHibernate {
     }
 
 
-    public List getPaymentList() {
+    public List<Payment> getPaymentList() {
         return getPaymentList(true, -1, -1);
     }
 
-    public List getPaymentList(boolean all, int maxRes, int firstRes) {
+    public List<Payment> getPaymentList(boolean all, int maxRes, int firstRes) {
 
         EntityManager em = getEntityManager();
         try {
@@ -88,6 +90,16 @@ public class PaymentHibernate {
             }
         }
         return null;
+    }
+
+    public List<Payment> getPaymentsOfCategory(Category category)
+    {
+        ArrayList<Payment> payments = new ArrayList<Payment>();
+        for (Payment payment : getPaymentList())
+        {
+            if (payment.getCategory().getCategoryID() == category.getCategoryID()) payments.add(payment);
+        }
+        return payments;
     }
 
     public void edit(Payment payment) {

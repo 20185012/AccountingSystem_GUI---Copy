@@ -16,15 +16,17 @@ public class Payment implements Serializable {
     @ManyToOne
     Category category;
 
-    public Payment(int paymentId, float paymentSum, LocalDate paymentDate) {
+    public Payment(int paymentId, float paymentSum, LocalDate paymentDate, Category category) {
         this.paymentId = paymentId;
         this.paymentSum = paymentSum;
         this.paymentDate = paymentDate;
+        this.category = category;
     }
 
-    public Payment(float paymentSum, LocalDate paymentDate) {
+    public Payment(float paymentSum, LocalDate paymentDate, Category category) {
         this.paymentSum = paymentSum;
         this.paymentDate = paymentDate;
+        this.category = category;
     }
 
     public Payment() {
@@ -52,5 +54,23 @@ public class Payment implements Serializable {
 
     public void setPaymentDate(LocalDate paymentDate) {
         this.paymentDate = paymentDate;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "Payment{" +
+                "paymentId=" + paymentId +
+                ", paymentSum=" + paymentSum +
+                ", paymentDate=" + paymentDate +
+                ", category=" + category +
+                '}';
     }
 }

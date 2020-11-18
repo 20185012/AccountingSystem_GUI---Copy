@@ -1,12 +1,15 @@
 package Hibernate;
 
+import Model.Category;
 import Model.Payment;
 import Model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserHibernate {
@@ -37,7 +40,61 @@ public class UserHibernate {
         }
     }
 
+    public User getUserById(int id)
+    {
+        for (User user : getUsersList())
+        {
+            if (user.getUserID() == id) return user;
+        }
+        return null;
+    }
 
+    public List<Category> getCategoriesResponsible(User user)
+    {
+        return getUserById(user.getUserID()).getCategoriesResponsible();
+    }
+
+    public void addCategoryResponsible(int categoryId, int userId) throws Exception {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            try {
+                Category category = em.find(Category.class, categoryId);
+                User user = em.find(User.class, userId);
+                user.getCategoriesResponsible().add(category);
+                category.getResponsibleUsers().add(user);
+                em.getTransaction().commit();
+            } catch (EntityNotFoundException enfe) {
+                throw new Exception("Error when removing responsible User from category", enfe);
+            }
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
+
+    public void removeCategoryResponsible(int categoryId, int userId) throws Exception {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            try {
+                Category category = em.find(Category.class, categoryId);
+                User user = em.find(User.class, userId);
+                user.getCategoriesResponsible().remove(category);
+                category.getResponsibleUsers().remove(user);
+                em.getTransaction().commit();
+            } catch (EntityNotFoundException enfe) {
+                throw new Exception("Error when removing responsible User from category", enfe);
+            }
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
 
     public void remove(int id) {
         EntityManager em = null;

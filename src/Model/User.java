@@ -150,16 +150,6 @@ public class User implements Serializable {
     public String toString() {
         return "User{" +
                 "userID=" + userID +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", address='" + address + '\'' +
-                ", companyCode='" + companyCode + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", categoriesResponsible=" + categoriesResponsible +
-                ", userType='" + userType + '\'' +
-                '}';
+                ", name='" + name + '\'';
     }
 }

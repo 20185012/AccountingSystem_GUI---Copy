@@ -137,6 +137,8 @@ public class LoginPageController implements Initializable {
                         passwordFieldRegister.getText(),
                         new ArrayList<Category>(),
                         "Individual");
+
+                clearTextFieldsForIndividual();
             }
             else if (legalUserToggle.isSelected())
             {
@@ -151,21 +153,46 @@ public class LoginPageController implements Initializable {
                         passwordFieldRegister.getText(),
                         new ArrayList<Category>(),
                         "Legal");
+
+                clearTextFieldsLegal();
             }
 
             userHibernate.create(userBeingRegistered);
             systemRoot.getUsers().add(userBeingRegistered);
-            registerPrompt.setText("User " + userBeingRegistered.getUsername() + " successfully signed up.");
-            registerPrompt.setTextFill(Color.GREEN);
-            registerPrompt.setVisible(true);
+            registerPromtWhenRegisterSuccessful(userBeingRegistered);
         }
-        else
-        {
-            registerPrompt.setText("Required data is missing.");
-            registerPrompt.setTextFill(Color.RED);
-            registerPrompt.setVisible(true);
-        }
-        System.out.println(userBeingRegistered.toString());
+        else registerPromptWhenDataMissing();
+    }
+
+    private void clearTextFieldsLegal() {
+        nameTextFieldRegister.clear();
+        emailTextFieldRegister.clear();
+        phoneTextFieldRegister.clear();
+        addressTextFieldRegister.clear();
+        companyCodeTextFieldRegister.clear();
+        usernameTextFieldRegister.clear();
+        passwordFieldRegister.clear();
+    }
+
+    private void clearTextFieldsForIndividual() {
+        nameTextFieldRegister.clear();
+        surnameTextFieldRegister.clear();
+        emailTextFieldRegister.clear();
+        phoneTextFieldRegister.clear();
+        usernameTextFieldRegister.clear();
+        passwordFieldRegister.clear();
+    }
+
+    private void registerPromptWhenDataMissing() {
+        registerPrompt.setText("Required data is missing.");
+        registerPrompt.setTextFill(Color.RED);
+        registerPrompt.setVisible(true);
+    }
+
+    private void registerPromtWhenRegisterSuccessful(User userBeingRegistered) {
+        registerPrompt.setText("User " + userBeingRegistered.getUsername() + " successfully signed up.");
+        registerPrompt.setTextFill(Color.GREEN);
+        registerPrompt.setVisible(true);
     }
 
     private void hideRequiredDataStars() {

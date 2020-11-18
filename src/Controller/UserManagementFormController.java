@@ -1,6 +1,10 @@
 package Controller;
 
+import Hibernate.CategoryHibernate;
+import Hibernate.PaymentHibernate;
+import Hibernate.ReceivableHibernate;
 import Hibernate.UserHibernate;
+import Model.Category;
 import Model.SystemRoot;
 import Model.User;
 import javafx.event.ActionEvent;
@@ -8,15 +12,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class UserManagementFormController implements Initializable {
@@ -47,6 +52,9 @@ public class UserManagementFormController implements Initializable {
     public Button phoneEditBtn;
     public Button phoneConfirmBtn;
     public Button goBackBtn;
+    public ListView categoriesListView;
+    public Button addCategoryResponsibleBtn;
+    public Button removeCategoryResponsibleBtn;
 
 
     private User currentUser;
@@ -55,6 +63,9 @@ public class UserManagementFormController implements Initializable {
 
     EntityManagerFactory factory = Persistence.createEntityManagerFactory("AccountingSystem_GUI_DB");
     private UserHibernate userHibernate = new UserHibernate(factory);
+
+    private CategoryHibernate categoryHibernate = new CategoryHibernate(factory);
+
 
 
 
@@ -105,17 +116,20 @@ public class UserManagementFormController implements Initializable {
         {
             surnameTextField.setText("User is legal");
             surnameTextField.setEditable(false);
+            surnameTextField.setDisable(true);
             surnameEditBtn.setDisable(true);
             surnameConfirmBtn.setDisable(true);
 
 
             companyCodeTextField.setText(userBeingEdited.getCompanyCode());
             companyCodeTextField.setEditable(false);
-            companyCodeConfirmBtn.setDisable(true);
+            companyCodeTextField.setDisable(false);
+            companyCodeConfirmBtn.setDisable(false);
 
             addressTextField.setText(userBeingEdited.getAddress());
             addressTextField.setEditable(false);
-            addressConfirmBtn.setDisable(true);
+            addressTextField.setDisable(false);
+            addressConfirmBtn.setDisable(false);
         }
     }
 
@@ -128,6 +142,8 @@ public class UserManagementFormController implements Initializable {
     public void setCurrentUser(User user) {
         this.currentUser = user;
         userLabel.setText("User: " + user.getName());
+
+        refreshCategoriesResponsibleListView();
     }
 
     public void setSystemRoot(SystemRoot systemRoot) {
@@ -266,4 +282,41 @@ public class UserManagementFormController implements Initializable {
     }
 
 
+    public void addCategoryResponsible(ActionEvent actionEvent) throws Exception {
+        ArrayList<Category> categories = (ArrayList<Category>) categoryHibernate.getCategoryList();
+
+        ChoiceDialog<Category> dialog = new ChoiceDialog<Category>(categories.get(0), categories);
+        dialog.setTitle("Add category responsible");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Choose category: ");
+
+        Optional<Category> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            userHibernate.addCategoryResponsible(result.get().getCategoryID(), userBeingEdited.getUserID());
+            refreshCategoriesResponsibleListView();
+        }
+    }
+
+    private void refreshCategoriesResponsibleListView() {
+        if(categoriesListView.getItems().size() > 0) categoriesListView.getItems().clear();
+        for (Category category : userHibernate.getCategoriesResponsible(userBeingEdited))
+        {
+            categoriesListView.getItems().add(category.getCategoryID() + ": " + category.getCategoryName());
+        }
+    }
+
+    public void removeCategoryResponsible(ActionEvent actionEvent) throws Exception {
+        List<Category> categories = userHibernate.getCategoriesResponsible(userBeingEdited);
+
+        ChoiceDialog<Category> dialog = new ChoiceDialog<Category>(categories.get(0), categories);
+        dialog.setTitle("Remove category responsible");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Choose category: ");
+
+        Optional<Category> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            userHibernate.removeCategoryResponsible(result.get().getCategoryID(), userBeingEdited.getUserID());
+            refreshCategoriesResponsibleListView();
+        }
+    }
 }

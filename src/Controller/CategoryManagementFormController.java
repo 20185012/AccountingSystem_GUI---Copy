@@ -2,6 +2,7 @@ package Controller;
 
 import Hibernate.CategoryHibernate;
 import Hibernate.PaymentHibernate;
+import Hibernate.ReceivableHibernate;
 import Hibernate.UserHibernate;
 import Model.*;
 import javafx.event.ActionEvent;
@@ -19,11 +20,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static Utils.CategoryUtils.accessLastCategory;
-import static Utils.CategoryUtils.getSelectedCategory;
+import static Utils.CategoryUtils.getSelectedCategoryId;
 
 public class CategoryManagementFormController implements Initializable {
 
@@ -43,8 +45,9 @@ public class CategoryManagementFormController implements Initializable {
     @FXML public MenuItem deleteCategoryBtn;
     @FXML public Button backToParentBtn;
     @FXML public Label categoryNameLabel;
+    @FXML public Button addResponsibleUserBtn;
+    @FXML public Button removeResponsibleUser;
 
-    private ArrayList<Category> subCategories;
     private User user;
     private Category currentCategory;
     private SystemRoot systemRoot;
@@ -52,6 +55,8 @@ public class CategoryManagementFormController implements Initializable {
     EntityManagerFactory factory = Persistence.createEntityManagerFactory("AccountingSystem_GUI_DB");
     private CategoryHibernate categoryHibernate = new CategoryHibernate(factory);
     private PaymentHibernate paymentHibernate = new PaymentHibernate(factory);
+    private ReceivableHibernate receivableHibernate = new ReceivableHibernate(factory);
+    private UserHibernate userHibernate = new UserHibernate(factory);
 
     public SystemRoot getSystemRoot() {
         return systemRoot;
@@ -77,61 +82,49 @@ public class CategoryManagementFormController implements Initializable {
     public void setCurrentCategory(Category currentCategory, User user) {
         this.currentCategory = currentCategory;
         currentUserLabel.setText(user.getName());
-        populateCategoriesList();
-        populateIncomeHistoryList();
-        populateExpenseHistoryList();
-        populateResponsibleUsersList();
+
+        refreshIncomeHistoryList();
+        refreshExpenseHistoryList();
+        refreshCategoriesListView();
+        refreshResponsibleUsersListView();
+
         categoryNameLabel.setText(currentCategory.getCategoryName());
     }
 
-
-
-    private void populateResponsibleUsersList() {
-        currentCategory.
-                getResponsibleUsers().
-                forEach
-                        (user ->
-                                responsibleUsersList.getItems().
-                                        add
-                                                (user.getName()));
+    private void refreshExpenseHistoryList() {
+        if (expenseList.getItems().size() > 0) expenseList.getItems().clear();
+        for (Payment payment : paymentHibernate.getPaymentsOfCategory(currentCategory))
+        {
+            expenseList.getItems().add(payment.getPaymentDate() + " : " + payment.getPaymentSum());
+        }
     }
 
-    private void populateExpenseHistoryList() {
-        currentCategory.getExpense().
-                forEach
-                        (payment ->
-                                categoryList.getItems().
-                                        add
-                                                (payment.getPaymentDate().toString() + "  " + payment.getPaymentSum()));
-    }
-
-    private void populateIncomeHistoryList() {
-        currentCategory.getIncome().
-                forEach
-                        (receivable ->
-                                categoryList.getItems().
-                                        add
-                                                (receivable.getReceivableDate() + "  " + receivable.getReceivableSum()));
-    }
-
-    private void populateCategoriesList() {
-        currentCategory.
-                getSubCategories().
-                forEach
-                        (category ->
-                                categoryList.getItems().
-                                        add
-                                                (category.getCategoryName()));
+    private void refreshIncomeHistoryList() {
+        if (incomeList.getItems().size() > 0) incomeList.getItems().clear();
+        for(Receivable receivable : receivableHibernate.getReceivablesOfCategory(currentCategory))
+        {
+            incomeList.getItems().add(receivable.getReceivableDate() + " : " + receivable.getReceivableSum());
+        }
     }
 
 
-
-
-    public ArrayList<Category> getSubCategories() {
-        return subCategories;
+    public void refreshCategoriesListView()
+    {
+        if (categoryList.getItems().size() > 0) categoryList.getItems().clear();
+        for (Category category : categoryHibernate.getCategoriesOfParent(currentCategory))
+        {
+            categoryList.getItems().add(category.getCategoryID() + ": " + category.getCategoryName());
+        }
     }
 
-    public void setSubCategories(ArrayList<Category> subCategories) { this.subCategories = subCategories; }
+    public void refreshResponsibleUsersListView()
+    {
+        if(responsibleUsersList.getItems().size() > 0) responsibleUsersList.getItems().clear();
+        for (User user : categoryHibernate.getResponsibleUsersOfCategory(currentCategory))
+        {
+            responsibleUsersList.getItems().add(user.getUserID() + ": " + user.getUsername());
+        }
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -144,8 +137,11 @@ public class CategoryManagementFormController implements Initializable {
         Parent root = loader.load();
         CategoryManagementFormController categoryManagementFormController = loader.getController();
 
+        int selectedCategoryId = getSelectedCategoryId(categoryList.getSelectionModel().getSelectedItem());
 
-        categoryManagementFormController.setCurrentCategory(getSelectedCategory(categoryList.getSelectionModel().getSelectedItem(),currentCategory.getSubCategories()), user);
+        Category categoryToAccess = categoryHibernate.getCategoryById(selectedCategoryId);
+
+        categoryManagementFormController.setCurrentCategory(categoryToAccess, user);
 
         categoryManagementFormController.setUser(user);
 
@@ -157,7 +153,6 @@ public class CategoryManagementFormController implements Initializable {
         stage.setTitle("Accounting system");
         stage.setScene(new Scene(root));
         stage.show();
-
     }
 
     public void SellSomething(ActionEvent actionEvent) {
@@ -169,12 +164,11 @@ public class CategoryManagementFormController implements Initializable {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent() && result.get() != "")
         {
-            currentCategory.getIncome().add( new Receivable(Float.parseFloat(result.get()),LocalDate.now()));//TODO make proper validation in case for not numbers
+            Receivable receivableBeingReceived =  new Receivable(Float.parseFloat(result.get()),LocalDate.now(), currentCategory);
 
-            System.out.println(currentCategory.getIncome().size());
-            Receivable lastReceivable = currentCategory.getIncome().get(currentCategory.getIncome().size()-1);
+            categoryHibernate.AddIncome(currentCategory, receivableBeingReceived);
 
-            incomeList.getItems().add(lastReceivable.getReceivableDate() + "   " + lastReceivable.getReceivableSum());
+            refreshIncomeHistoryList();
         }
     }
 
@@ -187,19 +181,17 @@ public class CategoryManagementFormController implements Initializable {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent() && result.get() != "")
         {
-            Payment paymentBeingMade = new Payment(Float.parseFloat(result.get()),LocalDate.now());
+            Payment paymentBeingMade = new Payment(Float.parseFloat(result.get()),LocalDate.now(),currentCategory);
 
             currentCategory.getExpense().add(paymentBeingMade);//TODO make proper validation in case for not numbers
 
             categoryHibernate.AddExpense(currentCategory, paymentBeingMade);
 
-            Payment lastPayment = currentCategory.getExpense().get(currentCategory.getExpense().size()-1);
-
-            expenseList.getItems().add(lastPayment.getPaymentDate() + " " + lastPayment.getPaymentSum());
+            refreshExpenseHistoryList();
         }
     }
 
-    public void loadCategoryAddDialog(ActionEvent actionEvent) {
+    public void loadCategoryAddDialog(ActionEvent actionEvent) throws Exception {
         TextInputDialog dialog = new TextInputDialog("");
         dialog.setTitle("Add  category");
         dialog.setHeaderText(null);
@@ -208,14 +200,27 @@ public class CategoryManagementFormController implements Initializable {
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent() && result.get() != "")
         {
-            currentCategory.getSubCategories().add( new Category(result.get(), new ArrayList<User>(), new ArrayList<Category>(), null, 0, new ArrayList<Receivable>(), new ArrayList<Payment>()));
-            categoryList.getItems().
-                    add(accessLastCategory(currentCategory.getSubCategories()).getCategoryID() + ": "
-                            + accessLastCategory(currentCategory.getSubCategories()).getCategoryName());
+            Category categoryBeingAdded =  new Category(result.get(), new ArrayList<User>(), new ArrayList<Category>(), currentCategory, 0, new ArrayList<Receivable>(), new ArrayList<Payment>());
+            categoryHibernate.AddSubCategory(currentCategory, categoryBeingAdded);
+
+            //currentCategory.getSubCategories().add(categoryBeingAdded);
+            refreshCategoriesListView();
         }
     }
 
     public void deleteCategory(ActionEvent actionEvent) {
+        List<Category> categories = categoryHibernate.getCategoriesOfParent(currentCategory);
+
+        ChoiceDialog<Category> dialog = new ChoiceDialog<Category>(categories.get(0), categories);
+        dialog.setTitle("Add responsible user");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Choose user: ");
+
+        Optional<Category> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            categoryHibernate.remove(currentCategory.getCategoryID());
+            refreshCategoriesListView();
+        }
     }
 
     public void goToParentCategory(ActionEvent actionEvent) throws IOException {
@@ -263,5 +268,37 @@ public class CategoryManagementFormController implements Initializable {
 
 
 
+    }
+
+
+    public void addResponsibleUser(ActionEvent actionEvent) throws Exception {
+
+            List<User> users = userHibernate.getUsersList();
+
+            ChoiceDialog<User> dialog = new ChoiceDialog<User>(users.get(0),users);
+            dialog.setTitle("Add responsible user");
+            dialog.setHeaderText(null);
+            dialog.setContentText("Choose user: ");
+
+            Optional<User> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                categoryHibernate.AddResponsibleUser(currentCategory.getCategoryID(), result.get().getUserID());
+                refreshResponsibleUsersListView();
+            }
+    }
+
+    public void removeResponsibleUser(ActionEvent actionEvent) throws Exception {
+        List<User> users = categoryHibernate.getResponsibleUsersOfCategory(currentCategory);
+
+        ChoiceDialog<User> dialog = new ChoiceDialog<User>(users.get(0),users);
+        dialog.setTitle("Remove responsible user");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Choose user: ");
+
+        Optional<User> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            categoryHibernate.removeResponsibleUser(currentCategory.getCategoryID(), result.get().getUserID());
+            refreshResponsibleUsersListView();
+        }
     }
 }

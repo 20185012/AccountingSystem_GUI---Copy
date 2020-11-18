@@ -16,15 +16,17 @@ public class Receivable implements Serializable {
     @ManyToOne
     Category category;
 
-    public Receivable(int receivableId, float receivableSum, LocalDate receivableDate) {
+    public Receivable(int receivableId, float receivableSum, LocalDate receivableDate, Category category) {
         this.receivableId = receivableId;
         this.receivableSum = receivableSum;
         this.receivableDate = receivableDate;
+        this.category = category;
     }
 
-    public Receivable(float receivableSum, LocalDate receivableDate) {
+    public Receivable(float receivableSum, LocalDate receivableDate, Category category) {
         this.receivableSum = receivableSum;
         this.receivableDate = receivableDate;
+        this.category = category;
     }
 
     public Receivable() {
@@ -52,5 +54,13 @@ public class Receivable implements Serializable {
 
     public void setReceivableDate(LocalDate receivableDate) {
         this.receivableDate = receivableDate;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

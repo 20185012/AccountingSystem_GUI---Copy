@@ -15,21 +15,15 @@ public class CategoryUtils {
         return categories.get(categories.size()-1);
     }
 
-    public static Category getSelectedCategory(Object selectedItem, List<Category> categories) {
+    public static int getSelectedCategoryId(Object selectedItem) {
 
         if (selectedItem != null)
         {
             String[] categoryData = selectedItem.toString().split(": ");
 
-            for (Category category : categories)
-            {
-                if (category.getCategoryID() == Integer.parseInt(categoryData[0]))
-                {
-                    return category;
-                }
-            }
+            return Integer.parseInt(categoryData[0]);
         }
-        return null;
+        return -1;
     }
 
 

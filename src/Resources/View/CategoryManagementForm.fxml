@@ -19,10 +19,10 @@
       </Label>
       <ListView fx:id="categoryList" layoutX="435.0" prefHeight="218.0" prefWidth="286.0" />
       <Label fx:id="userLabel" />
-      <ListView fx:id="responsibleUsersList" layoutX="498.0" layoutY="296.0" prefHeight="183.0" prefWidth="223.0" />
+      <ListView fx:id="responsibleUsersList" layoutX="435.0" layoutY="340.0" prefHeight="139.0" prefWidth="286.0" />
       <Label fx:id="auditDetailsLabel" contentDisplay="TOP" layoutY="479.0" prefHeight="43.0" prefWidth="137.0" text="Audit details" visible="false" />
       <Button fx:id="backToParentBtn" layoutX="435.0" layoutY="218.0" mnemonicParsing="false" onAction="#goToParentCategory" prefHeight="36.0" prefWidth="126.0" text="Back to parent" />
-      <Label alignment="CENTER" layoutX="499.0" layoutY="261.0" prefHeight="36.0" prefWidth="223.0" text="Responsible users">
+      <Label alignment="CENTER" layoutX="498.0" layoutY="300.0" prefHeight="36.0" prefWidth="223.0" text="Responsible users">
          <font>
             <Font name="Calibri Bold" size="25.0" />
          </font>
@@ -56,5 +56,7 @@
             <Font name="System Bold" size="15.0" />
          </font>
       </Label>
+      <Button fx:id="addResponsibleUserBtn" layoutX="562.0" layoutY="479.0" mnemonicParsing="false" onAction="#addResponsibleUser" prefHeight="36.0" prefWidth="158.0" text="Add" />
+      <Button fx:id="removeResponsibleUser" layoutX="437.0" layoutY="479.0" mnemonicParsing="false" onAction="#removeResponsibleUser" prefHeight="36.0" prefWidth="126.0" text="Remove" />
    </children>
 </AnchorPane>

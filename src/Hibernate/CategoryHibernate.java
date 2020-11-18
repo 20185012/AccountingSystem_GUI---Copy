@@ -2,7 +2,9 @@ package Hibernate;
 
 import Model.Category;
 import Model.Payment;
+import Model.Receivable;
 import Model.User;
+import org.hibernate.SQLQuery;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -10,6 +12,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryHibernate {
@@ -40,126 +43,91 @@ public class CategoryHibernate {
         }
     }
 
-    public List<User> getUserList() {
-        return getUserList(true, -1, -1);
+    public void remove(int id){
+        EntityManager entityManager = null;
+
+        try {
+            entityManager = getEntityManager();
+            entityManager.getTransaction().begin();
+            Category category = null;
+            try{
+                category = entityManager.getReference(Category.class, id);
+                for(User user: category.getResponsibleUsers()){
+                    user.getCategoriesResponsible().remove(category);
+                }
+                category.getResponsibleUsers().clear();
+                category.getCategoryID();
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            entityManager.remove(category);
+            entityManager.getTransaction().commit();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        } finally {
+            if (entityManager != null) {
+                entityManager.close();
+            }
+        }
     }
 
-    public List<User> getUserList(boolean all, int maxRes, int firstRes) {
+    public List<Category> getCategoriesOfParent(Category parentCategory)
+    {
+        ArrayList<Category> categories = new ArrayList<Category>();
 
-        EntityManager em = getEntityManager();
-        try {
-
-            CriteriaQuery criteriaQuery = em.getCriteriaBuilder().createQuery();
-            criteriaQuery.select(criteriaQuery.from(User.class));
-            Query query = em.createQuery(criteriaQuery);
-
-            if (!all) {
-                query.setMaxResults(maxRes);
-                query.setFirstResult(firstRes);
+        for (Category category : getCategoryList())
+        {
+            if (category.getParentCategory() != null)
+            {
+                if (category.getParentCategory().getCategoryID() == parentCategory.getCategoryID())
+                {
+                    categories.add(category);
+                }
             }
-            return query.getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (em != null) {
-                em.close();
-            }
+        }
+
+        return categories;
+    }
+
+    public List<Category> getRootCategories()
+    {
+        ArrayList<Category> categories = new ArrayList<Category>();
+        for (Category category : getCategoryList())
+        {
+            if (category.getParentCategory() == null) categories.add(category);
+        }
+        return categories;
+    }
+
+    public Category getCategoryById(int id)
+    {
+        for (Category category : getCategoryList())
+        {
+            if (category.getCategoryID() == id) return category;
         }
         return null;
     }
 
-    public void edit(Category category) throws Exception {
-        EntityManager em = null;
+    public List<User> getResponsibleUsersOfCategory(Category category)
+    {
+        return getCategoryById(category.getCategoryID()).getResponsibleUsers();
+    }
+
+    public void update(Category category){
+        EntityManager entityManager = null;
+
         try {
-            em = getEntityManager();
-            em.getTransaction().begin();
-            category = em.merge(category);
-            em.getTransaction().commit();
-        } catch (Exception ex) {
-            String msg = ex.getLocalizedMessage();
-            if (msg == null || msg.length() == 0) {
-                String id = Integer.toString(category.getCategoryID());
-                if (findSection(id) == null) {
-                    throw new Exception("The section with id " + id + " no longer exists.");
-                }
-            }
-            throw ex;
+            entityManager = getEntityManager();
+            entityManager.getTransaction().begin();
+            category = entityManager.merge(category);
+            entityManager.getTransaction().commit();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         } finally {
-            if (em != null) {
-                em.close();
+            if (entityManager != null) {
+                entityManager.close();
             }
-        }
-    }
-
-    public Category findSection(String id) {
-        EntityManager em = getEntityManager();
-        try {
-            return em.find(Category.class, id);
-        } finally {
-            em.close();
-        }
-    }
-
-    public void remove(int id) throws Exception {
-        EntityManager em = null;
-        try {
-            em = getEntityManager();
-            em.getTransaction().begin();
-            Category category = null;
-            try {
-                category = em.getReference(Category.class, id);
-                category.getCategoryID();
-
-                Category parent = category.getParentCategory();
-                parent.getSubCategories().remove(category);
-                em.merge(parent);
-
-                for (Category c : category.getSubCategories()) {
-                    remove(c.getCategoryID());
-                }
-                category.getSubCategories().clear();
-                em.merge(category);
-
-            } catch (EntityNotFoundException enfe) {
-                throw new Exception("The Category with id " + id + " no longer exists.", enfe);
-            }
-            em.remove(category);
-            em.getTransaction().commit();
-        } finally {
-            if (em != null) {
-                em.close();
-            }
-        }
-    }
-
-    public List<Category> getCategoriesOfParent(Category parentCategory) {
-        return getCategoriesOfParent(parentCategory,true, -1, -1);
-    }
-
-    public List<Category> getCategoriesOfParent(Category parentCategory, int maxResults, int firstResult) {
-        return getCategoriesOfParent(parentCategory,false, maxResults, firstResult);
-    }
-
-    private List<Category> getCategoriesOfParent(Category parentCategory, boolean all, int maxResults, int firstResult ) {
-        EntityManager em = getEntityManager();
-        try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
-
-            Root from = cq.from(Category.class);
-            cq.select(from);
-
-            cq.where(em.getCriteriaBuilder().equal(from.get("parentCategory"), parentCategory));
-
-            Query q = em.createQuery(cq);
-            /*
-            if (!all) {
-                q.setMaxResults(maxResults);
-                q.setFirstResult(firstResult);
-            }
-            */
-            return q.getResultList();
-        } finally {
-            em.close();
         }
     }
 
@@ -171,12 +139,12 @@ public class CategoryHibernate {
             em.getTransaction().begin();
             try {
                 category.getExpense().add(payment);
-                em.merge(category);
-                em.flush();
+                category = em.merge(category);
+                em.getTransaction().commit();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            em.getTransaction().commit();
+
         } finally {
             if (em != null) {
                 em.close();
@@ -184,35 +152,115 @@ public class CategoryHibernate {
         }
     }
 
-
-
-
-    public List<Category> getRootCategories() {
-        return getRootCategories(true, -1, -1);
-    }
-
-    public List<Category> getRootCategories(int maxResults, int firstResult) {
-        return getRootCategories(false, maxResults, firstResult);
-    }
-
-    private List<Category> getRootCategories(boolean all, int maxResults, int firstResult ) {
-        EntityManager em = getEntityManager();
+    public void AddIncome(Category category, Receivable receivable)
+    {
+        EntityManager em = null;
         try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
-
-            Root from = cq.from(Category.class);
-            cq.select(from).where(from.get("parentCategory").isNull());
-
-            Query q = em.createQuery(cq);
-            /*
-            if (!all) {
-                q.setMaxResults(maxResults);
-                q.setFirstResult(firstResult);
+            em = getEntityManager();
+            em.getTransaction().begin();
+            try {
+                category.getIncome().add(receivable);
+                category = em.merge(category);
+                em.getTransaction().commit();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            */
-            return q.getResultList();
+
         } finally {
-            em.close();
+            if (em != null) {
+                em.close();
+            }
         }
+    }
+
+    public void AddSubCategory(Category category, Category subCategory)
+    {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            try {
+                category.getSubCategories().add(subCategory);
+                em.merge(category);
+                em.getTransaction().commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
+
+    public void AddResponsibleUser(int  categoryId, int userId) throws Exception {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            try {
+                Category category = em.find(Category.class, categoryId);
+                User user = em.find(User.class, userId);
+                user.getCategoriesResponsible().add(category);
+                category.getResponsibleUsers().add(user);
+                em.getTransaction().commit();
+            } catch (EntityNotFoundException enfe) {
+                throw new Exception("Error when removing responsible User from category", enfe);
+            }
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
+
+    public void removeResponsibleUser(int categoryId, int userId) throws Exception {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            try {
+                Category category = em.find(Category.class, categoryId);
+                User user = em.find(User.class, userId);
+                user.getCategoriesResponsible().remove(category);
+                category.getResponsibleUsers().remove(user);
+                em.getTransaction().commit();
+            } catch (EntityNotFoundException enfe) {
+                throw new Exception("Error when removing responsible User from category", enfe);
+            }
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
+    public List<Category> getCategoryList(){
+        return getCategoryList(true, -1, -1);
+    }
+
+    public List<Category> getCategoryList(boolean all, int maxRes, int firstRes){
+
+        EntityManager entityManager = getEntityManager();
+        try{
+
+            CriteriaQuery criteriaQuery = entityManager.getCriteriaBuilder().createQuery();
+            criteriaQuery.select(criteriaQuery.from(Category.class));
+            Query query = entityManager.createQuery(criteriaQuery);
+
+            if (!all) {
+                query.setMaxResults(maxRes);
+                query.setFirstResult(firstRes);
+            }
+            return query.getResultList();
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            if (entityManager != null) {
+                entityManager.close();
+            }
+        }
+
+        return null;
     }
 }

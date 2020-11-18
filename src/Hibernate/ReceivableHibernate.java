@@ -1,6 +1,7 @@
 package Hibernate;
 
-import Model.Payment;
+
+import Model.Category;
 import Model.Receivable;
 import Model.User;
 
@@ -8,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReceivableHibernate {
@@ -64,11 +66,11 @@ public class ReceivableHibernate {
     }
 
 
-    public List<User> getReceivableList() {
+    public List<Receivable> getReceivableList() {
         return getReceivableList(true, -1, -1);
     }
 
-    public List<User> getReceivableList(boolean all, int maxRes, int firstRes) {
+    public List<Receivable> getReceivableList(boolean all, int maxRes, int firstRes) {
 
         EntityManager em = getEntityManager();
         try {
@@ -90,6 +92,16 @@ public class ReceivableHibernate {
             }
         }
         return null;
+    }
+
+    public List<Receivable> getReceivablesOfCategory(Category category)
+    {
+        ArrayList<Receivable> receivables = new ArrayList<Receivable>();
+        for (Receivable receivable : getReceivableList())
+        {
+            if (receivable.getCategory().getCategoryID() == category.getCategoryID()) receivables.add(receivable);
+        }
+        return receivables;
     }
 
     public void edit(Receivable receivable) {

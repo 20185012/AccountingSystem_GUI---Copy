@@ -4,6 +4,7 @@ package Model;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.OnDelete;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -18,17 +19,17 @@ public class Category implements Serializable {
     private int categoryID;
     private String categoryName;
 
-    @ManyToMany(mappedBy = "categoriesResponsible", cascade = { CascadeType.MERGE })
+    @ManyToMany(mappedBy = "categoriesResponsible", cascade = { CascadeType.MERGE, CascadeType.REMOVE })
     @OrderBy
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<User> responsibleUsers;
-    @OneToMany
+    @OneToMany(mappedBy = "parentCategory",cascade = {CascadeType.MERGE})
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Category> subCategories;
     @ManyToOne
     private Category parentCategory;
     private float overallFinances;
-    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category",cascade = {CascadeType.MERGE, CascadeType.REMOVE})
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Receivable> income;
     @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
@@ -121,5 +122,13 @@ public class Category implements Serializable {
 
     public void setExpense(List<Payment> expense) {
         this.expense = expense;
+    }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "categoryID=" + categoryID +
+                ", categoryName='" + categoryName + '\'' +
+                '}';
     }
 }

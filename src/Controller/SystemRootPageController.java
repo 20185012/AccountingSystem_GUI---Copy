@@ -51,9 +51,8 @@ public class SystemRootPageController implements Initializable {
 
         systemRoot.setRootCategories(categoryHibernate.getRootCategories());
 
-        systemRoot.getRootCategories().forEach(category -> System.out.println(category.toString()));
-        populateRootCategoriesListWithData();
-        populateUsersList();
+        refreshUsersList();
+        refreshRootCategoriesListView();
 
         populateLabels(systemRoot, user);
     }
@@ -63,14 +62,12 @@ public class SystemRootPageController implements Initializable {
         currentUserLabel.setText("Current user: " + user.getName());
     }
 
-    private void populateUsersList() {
-        systemRoot.
-                getUsers().
-                forEach
-                        (user ->
-                                allUsersList.getItems().
-                                        add
-                                                (user.getUserID()+ ": " + user.getName()));
+    private void refreshUsersList() {
+        if(allUsersList.getItems().size() > 0) allUsersList.getItems().clear();
+        for (User user : userHibernate.getUsersList())
+        {
+            allUsersList.getItems().add(user.getUserID() + ": " + user.getUsername());
+        }
     }
 
     public User getUser() {
@@ -96,10 +93,6 @@ public class SystemRootPageController implements Initializable {
             return userToShow;
         }
         return null;
-    }
-
-    private void populateRootCategoriesListWithData() {
-        systemRoot.getRootCategories().forEach(category -> rootCategoriesList.getItems().add(category.getCategoryID() + ": " + category.getCategoryName()));
     }
 
     @Override
@@ -149,15 +142,18 @@ public class SystemRootPageController implements Initializable {
             Category categoryToAdd = new Category(result.get(), new ArrayList<User>(), new ArrayList<Category>(), null, 0, new ArrayList<Receivable>(), new ArrayList<Payment>());
             systemRoot.getRootCategories().add(categoryToAdd);
             categoryHibernate.create(categoryToAdd);
-            addToRootCategoriesListView();
+
+            refreshRootCategoriesListView();
         }
-        rootCategoriesList.refresh();
     }
 
-    private void addToRootCategoriesListView() {
-        rootCategoriesList.getItems().
-                add(accessLastCategory(systemRoot.getRootCategories()).getCategoryID() + ": "
-                        + accessLastCategory(systemRoot.getRootCategories()).getCategoryName());
+    public void refreshRootCategoriesListView()
+    {
+        if (rootCategoriesList.getItems().size() > 0) rootCategoriesList.getItems().clear();
+        for (Category category : categoryHibernate.getRootCategories())
+        {
+            rootCategoriesList.getItems().add(category.getCategoryID() + ": " + category.getCategoryName());
+        }
     }
 
     public void loadRootCategoryDeleteDialog(ActionEvent actionEvent) throws Exception {
@@ -170,9 +166,8 @@ public class SystemRootPageController implements Initializable {
             Optional<Category> result = dialog.showAndWait();
             if (result.isPresent()) {
                 categoryHibernate.remove(result.get().getCategoryID());
-                systemRoot.getRootCategories().remove(result.get());
                 rootCategoriesList.getItems().remove(result.get());
-                System.out.println();
+                refreshRootCategoriesListView();
             }
         }
     }
@@ -184,14 +179,13 @@ public class SystemRootPageController implements Initializable {
         Parent root = loader.load();
         CategoryManagementFormController categoryManagementFormController = loader.getController();
 
+        int selectedCategoryId = getSelectedCategoryId(rootCategoriesList.getSelectionModel().getSelectedItem());
 
-        Category categoryToAccess = getSelectedCategory(rootCategoriesList.getSelectionModel().getSelectedItem(),systemRoot.getRootCategories());
+        Category categoryToAccess = categoryHibernate.getCategoryById(selectedCategoryId);
 
         if (categoryToAccess != null) {
             categoryManagementFormController.setCurrentCategory(categoryToAccess, user);
             categoryManagementFormController.setSystemRoot(systemRoot);
-
-            System.out.println(systemRoot);
 
             categoryManagementFormController.setUser(user);
 
