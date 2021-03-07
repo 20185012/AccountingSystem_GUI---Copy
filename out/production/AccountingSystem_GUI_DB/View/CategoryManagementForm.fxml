@@ -46,7 +46,7 @@
           <Menu mnemonicParsing="false" text="Category">
             <items>
               <MenuItem fx:id="addCategoryBtn" mnemonicParsing="false" onAction="#loadCategoryAddDialog" text="Add" />
-                  <MenuItem fx:id="deleteCategoryBtn" mnemonicParsing="false" onAction="#deleteCategory" text="Delete" />
+                  <MenuItem fx:id="deleteCategoryBtn" mnemonicParsing="false" onAction="#loadCategoryDeleteDialog" text="Delete" />
             </items>
           </Menu>
         </menus>

@@ -198,16 +198,16 @@ public class CategoryManagementFormController implements Initializable {
         dialog.setContentText("Category name: ");
 
         Optional<String> result = dialog.showAndWait();
-        if (result.isPresent() && result.get() != "")
+        if (result.isPresent() && !result.get().equals(""))
         {
             Category categoryBeingAdded =  new Category(result.get(), new ArrayList<User>(), new ArrayList<Category>(), currentCategory, 0, new ArrayList<Receivable>(), new ArrayList<Payment>());
-            categoryHibernate.AddSubCategory(currentCategory, categoryBeingAdded);
+            categoryHibernate.AddSubCategory(categoryBeingAdded, categoryBeingAdded);
 
-            //currentCategory.getSubCategories().add(categoryBeingAdded);
             refreshCategoriesListView();
         }
     }
 
+    //TODO delete this method
     public void deleteCategory(ActionEvent actionEvent) {
         List<Category> categories = categoryHibernate.getCategoriesOfParent(currentCategory);
 
@@ -221,6 +221,28 @@ public class CategoryManagementFormController implements Initializable {
             categoryHibernate.remove(currentCategory.getCategoryID());
             refreshCategoriesListView();
         }
+    }
+
+    public void loadCategoryDeleteDialog(ActionEvent actionEvent) throws Exception {
+            List<Category> categories = categoryHibernate.getCategoriesOfParent(currentCategory);
+
+            ChoiceDialog<Category> dialog = new ChoiceDialog<Category>(categories.get(0), categories);
+            dialog.setTitle("Delete category");
+            dialog.setHeaderText(null);
+            dialog.setContentText("Choose category: ");
+
+            Optional<Category> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                categoryHibernate.remove(result.get().getCategoryID());
+                for(int i = 0; i<= categoryList.getItems().size(); i++) {
+                    if (categoryList.getItems().get(i).toString().startsWith(String.valueOf(result.get().getCategoryID()))) {
+                        categoryList.getItems().remove(i);
+                        break;
+                    }
+                }
+                refreshCategoriesListView();
+            }
+
     }
 
     public void goToParentCategory(ActionEvent actionEvent) throws IOException {

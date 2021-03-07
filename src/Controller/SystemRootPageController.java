@@ -140,9 +140,8 @@ public class SystemRootPageController implements Initializable {
         if (result.isPresent() && result.get() != "")
         {
             Category categoryToAdd = new Category(result.get(), new ArrayList<User>(), new ArrayList<Category>(), null, 0, new ArrayList<Receivable>(), new ArrayList<Payment>());
-            systemRoot.getRootCategories().add(categoryToAdd);
             categoryHibernate.create(categoryToAdd);
-
+            systemRoot.setRootCategories(categoryHibernate.getRootCategories());
             refreshRootCategoriesListView();
         }
     }
@@ -157,6 +156,7 @@ public class SystemRootPageController implements Initializable {
     }
 
     public void loadRootCategoryDeleteDialog(ActionEvent actionEvent) throws Exception {
+
         if (systemRoot.getRootCategories().size()>0) {
             ChoiceDialog<Category> dialog = new ChoiceDialog<Category>(systemRoot.getRootCategories().get(0), systemRoot.getRootCategories());
             dialog.setTitle("Delete root category");
@@ -166,7 +166,13 @@ public class SystemRootPageController implements Initializable {
             Optional<Category> result = dialog.showAndWait();
             if (result.isPresent()) {
                 categoryHibernate.remove(result.get().getCategoryID());
-                rootCategoriesList.getItems().remove(result.get());
+                for(int i = 0; i <= rootCategoriesList.getItems().size(); i++) {
+                   if (rootCategoriesList.getItems().get(i).toString().startsWith(String.valueOf(result.get().getCategoryID()))) {
+                        rootCategoriesList.getItems().remove(i);
+                        break;
+                    }
+                }
+                systemRoot.setRootCategories(categoryHibernate.getRootCategories());
                 refreshRootCategoriesListView();
             }
         }

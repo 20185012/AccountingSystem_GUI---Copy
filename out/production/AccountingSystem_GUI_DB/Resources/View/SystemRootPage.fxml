@@ -23,7 +23,7 @@
       </MenuBar>
       <ListView fx:id="rootCategoriesList" layoutX="531.0" prefHeight="185.0" prefWidth="189.0" />
       <Button fx:id="accessSelectedRootCategoryBtn" layoutX="531.0" layoutY="185.0" mnemonicParsing="false" onAction="#accessSelectedRootCategory" prefHeight="38.0" prefWidth="189.0" text="Access selected root category" />
-      <Button fx:id="manageUserBtn" layoutY="362.0" mnemonicParsing="false" onAction="#loadUserManagementForm" prefHeight="57.0" prefWidth="213.0" text="Manage user">
+      <Button fx:id="manageUserBtn" layoutY="362.0" mnemonicParsing="false" onAction="#loadUserManagementForm" prefHeight="57.0" prefWidth="213.0" text="Manage selected user">
          <font>
             <Font name="ArtifaktElement-Regular" size="14.0" />
          </font>
