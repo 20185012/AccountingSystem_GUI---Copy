@@ -3,6 +3,7 @@ package Controller;
 import Hibernate.CategoryHibernate;
 import Hibernate.UserHibernate;
 import Model.*;
+import Utils.AlertBox;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,9 +15,11 @@ import javafx.stage.Stage;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
 
 import static Utils.CategoryUtils.*;
 
@@ -166,8 +169,8 @@ public class SystemRootPageController implements Initializable {
             Optional<Category> result = dialog.showAndWait();
             if (result.isPresent()) {
                 categoryHibernate.remove(result.get().getCategoryID());
-                for(int i = 0; i <= rootCategoriesList.getItems().size(); i++) {
-                   if (rootCategoriesList.getItems().get(i).toString().startsWith(String.valueOf(result.get().getCategoryID()))) {
+                for (int i = 0; i <= rootCategoriesList.getItems().size(); i++) {
+                    if (rootCategoriesList.getItems().get(i).toString().startsWith(String.valueOf(result.get().getCategoryID()))) {
                         rootCategoriesList.getItems().remove(i);
                         break;
                     }
@@ -201,6 +204,11 @@ public class SystemRootPageController implements Initializable {
             stage.setTitle("Accounting system");
             stage.setScene(new Scene(root));
             stage.show();
+        }
+        else {
+            Stage stage = (Stage) accessSelectedRootCategoryBtn.getScene().getWindow();
+            AlertBox alertBox = new AlertBox();
+            alertBox.displayError(stage, "Category not selected", "Please select a category you would like to access");
         }
     }
 
