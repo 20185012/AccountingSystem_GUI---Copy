@@ -2,6 +2,8 @@ package Controller;
 
 import Hibernate.UserHibernate;
 import Model.*;
+import Utils.AlertBox;
+import Utils.DataValidity;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -124,44 +126,48 @@ public class LoginPageController implements Initializable {
 
         hideRequiredDataStars();
 
-        if (requiredFieldsFilled())
-        {
-            if (individualUserToggle.isSelected())
-            {
-                userBeingRegistered = new User(nameTextFieldRegister.getText(),
-                        surnameTextFieldRegister.getText(),
-                        emailTextFieldRegister.getText(),
-                        phoneTextFieldRegister.getText(),
-                        null, null,
-                        usernameTextFieldRegister.getText(),
-                        passwordFieldRegister.getText(),
-                        new ArrayList<Category>(),
-                        "Individual");
+        if (DataValidity.isValidEmailAddress(emailTextFieldRegister.getText())) {
+            if (requiredFieldsFilled()) {
+                if (individualUserToggle.isSelected()) {
+                    userBeingRegistered = new User(nameTextFieldRegister.getText(),
+                            surnameTextFieldRegister.getText(),
+                            emailTextFieldRegister.getText(),
+                            phoneTextFieldRegister.getText(),
+                            null, null,
+                            usernameTextFieldRegister.getText(),
+                            passwordFieldRegister.getText(),
+                            new ArrayList<Category>(),
+                            "Individual");
 
-                clearTextFieldsForIndividual();
+                    clearTextFieldsForIndividual();
+                } else if (legalUserToggle.isSelected()) {
+                    System.out.println("Legal user");
+                    userBeingRegistered = new User(nameTextFieldRegister.getText(),
+                            null,
+                            emailTextFieldRegister.getText(),
+                            phoneTextFieldRegister.getText(),
+                            addressTextFieldRegister.getText(),
+                            companyCodeTextFieldRegister.getText(),
+                            usernameTextFieldRegister.getText(),
+                            passwordFieldRegister.getText(),
+                            new ArrayList<Category>(),
+                            "Legal");
+
+                    clearTextFieldsLegal();
+                }
+
+                userHibernate.create(userBeingRegistered);
+                systemRoot.getUsers().add(userBeingRegistered);
+                registerPromtWhenRegisterSuccessful(userBeingRegistered);
             }
-            else if (legalUserToggle.isSelected())
-            {
-                System.out.println("Legal user");
-                userBeingRegistered = new User(nameTextFieldRegister.getText(),
-                        null,
-                        emailTextFieldRegister.getText(),
-                        phoneTextFieldRegister.getText(),
-                        addressTextFieldRegister.getText(),
-                        companyCodeTextFieldRegister.getText(),
-                        usernameTextFieldRegister.getText(),
-                        passwordFieldRegister.getText(),
-                        new ArrayList<Category>(),
-                        "Legal");
-
-                clearTextFieldsLegal();
-            }
-
-            userHibernate.create(userBeingRegistered);
-            systemRoot.getUsers().add(userBeingRegistered);
-            registerPromtWhenRegisterSuccessful(userBeingRegistered);
+            else registerPromptWhenDataMissing();
         }
-        else registerPromptWhenDataMissing();
+        else {
+            AlertBox alertBox = new AlertBox();
+            Stage stage = (Stage) registerBtn.getScene().getWindow();
+            alertBox.displayError(stage, "Email not valid","Email is not in valid format, please enter email correctly.");
+        }
+
     }
 
     private void clearTextFieldsLegal() {
