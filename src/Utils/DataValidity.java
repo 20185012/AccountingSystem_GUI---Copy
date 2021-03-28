@@ -28,6 +28,11 @@ public class DataValidity {
         java.util.regex.Matcher mm = pp.matcher(phoneNumber);
         return mm.matches();
     }
-
-
+    public static boolean isValidNameLength(String name)
+    {
+        return name.length()<=30 && name.length() >= 1;
+    }
+    public static boolean isValidNameAlphabeticForm(String name){
+        return !name.equals("") && name.matches("^[a-zA-Z]*$");
+    }
 }
