@@ -11,7 +11,7 @@ public class DataValidity {
 
     public static boolean isOnlyAlphabeticalChars(String word)
     {
-        return word != null && word.matches("^[a-zA-Z]*$");
+        return !word.equals("") && word.matches("^[a-zA-Z]*$");
     }
 
 }
