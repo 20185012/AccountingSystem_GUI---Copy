@@ -14,4 +14,11 @@ public class DataValidity {
         return word != null && word.matches("^[a-zA-Z]*$");
     }
 
+    public static boolean isValidPasswordLength(String password)
+    {
+
+        return password.length()<=15 && password.length() != 0;
+    }
+
+
 }
