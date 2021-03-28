@@ -46,4 +46,11 @@ public class DataValidity {
     }
 
 
+    public static boolean isValidNameAlphabeticForm(String name) {
+        return !name.equals("") && name.matches("^[a-zA-Z]*$");
+    }
+
+    public static boolean isValidNameLength(String name) {
+        return name.length()<=30 && name.length() > 1;
+    }
 }
