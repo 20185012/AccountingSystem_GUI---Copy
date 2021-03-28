@@ -8,4 +8,10 @@ public class DataValidity {
         java.util.regex.Matcher m = p.matcher(email);
         return m.matches();
     }
+
+    public static boolean isOnlyAlphabeticalChars(String word)
+    {
+        return word != null && word.matches("^[a-zA-Z]*$");
+    }
+
 }
