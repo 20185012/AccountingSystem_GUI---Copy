@@ -1,5 +1,8 @@
 package Utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class DataValidity {
     public static boolean isValidEmailAddress(String email)
     {
@@ -28,11 +31,19 @@ public class DataValidity {
         java.util.regex.Matcher mm = pp.matcher(phoneNumber);
         return mm.matches();
     }
-    public static boolean isValidNameLength(String name)
-    {
-        return name.length()<=30 && name.length() >= 1;
+
+    public static boolean isValidLithuanianPhoneNumber(String phoneNumber) {
+
+
+        // Compile regular expression
+        Pattern pattern = Pattern.compile("^\\+3706\\d\\d\\d\\d\\d\\d\\d$" ,Pattern.CASE_INSENSITIVE);
+        Pattern alternatePattern = Pattern.compile("^86\\d\\d\\d\\d\\d\\d\\d$" ,Pattern.CASE_INSENSITIVE);
+        // Match regex against phoneNumber
+        Matcher matcher = pattern.matcher(phoneNumber);
+        Matcher alternateMatcher = alternatePattern.matcher(phoneNumber);
+        // Use results...
+        return matcher.matches() || alternateMatcher.matches();
     }
-    public static boolean isValidNameAlphabeticForm(String name){
-        return !name.equals("") && name.matches("^[a-zA-Z]*$");
-    }
+
+
 }
