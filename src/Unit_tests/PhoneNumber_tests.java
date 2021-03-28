@@ -30,9 +30,9 @@ public class PhoneNumber_tests {
             String phoneNumber="+123456789";
             assertTrue(DataValidity.isValidNumberStartWithPlus(phoneNumber));
         }
-        @Test public void numberWithputPlusSymbolShouldBeIncorrect()
+        @Test public void numberWithoutPlusSymbolShouldBeIncorrect()
         {
             String phoneNumber="123456789";
-            assertTrue(DataValidity.isValidNumberStartWithPlus(phoneNumber));
+            assertFalse(DataValidity.isValidNumberStartWithPlus(phoneNumber));
         }
 }
