@@ -21,15 +21,10 @@ public class DataValidity {
     {
         return password.length()<=15 && password.length() > 0;
     }
-    public static boolean isValidNumber(String phoneNumber)
+    public static boolean isAuthenticationCodeValid(String authenticationCode)
     {
-        return phoneNumber.length()<=15 && phoneNumber.length() > 5;
-    }
-    public static boolean isValidNumberStartWithPlus(String phoneNumber){
-        String PhonePattern = "^[+][0-9]+";
-        java.util.regex.Pattern pp = java.util.regex.Pattern.compile(PhonePattern);
-        java.util.regex.Matcher mm = pp.matcher(phoneNumber);
-        return mm.matches();
+        if ( authenticationCode.length() != 6 ) return false;
+            else return true;
     }
 
     public static boolean isValidLithuanianPhoneNumber(String phoneNumber) {
