@@ -17,4 +17,16 @@ public class AlertBox {
         alert.getDialogPane().setHeaderText(title);
         alert.showAndWait();
     }
+
+    @FXML
+    public void displayWarning(Stage stage, String title, String message) {
+
+        Alert alert = new Alert(Alert.AlertType.WARNING, "");
+        alert.initModality(Modality.APPLICATION_MODAL);
+        alert.initOwner(stage);
+        alert.getDialogPane().setContentText(message);
+        alert.getDialogPane().setHeaderText(title);
+        alert.showAndWait();
+    }
+
 }
