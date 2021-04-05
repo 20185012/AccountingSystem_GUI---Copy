@@ -1,13 +1,7 @@
 package Utils;
 
 import Model.Category;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.control.SelectionModel;
 
-import javax.swing.text.html.ListView;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryUtils {

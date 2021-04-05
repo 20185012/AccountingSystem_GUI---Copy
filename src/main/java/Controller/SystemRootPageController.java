@@ -15,13 +15,13 @@ import javafx.stage.Stage;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
-import java.util.jar.JarEntry;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
-import static Utils.CategoryUtils.*;
+import static Utils.CategoryUtils.getSelectedCategoryId;
 
 public class SystemRootPageController implements Initializable {
 
