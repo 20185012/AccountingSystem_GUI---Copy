@@ -25,18 +25,30 @@ import static Utils.CategoryUtils.*;
 
 public class SystemRootPageController implements Initializable {
 
-    @FXML public Button manageUsersBtn;
-    @FXML public Button showSystemInfoBtn;
-    @FXML public ListView rootCategoriesList;
-    @FXML public MenuItem addRootCategoryBtn;
-    @FXML public MenuItem deleteRootCategoryBtn;
-    @FXML public Label userLabel;
-    @FXML public Button accessSelectedRootCategoryBtn;
-    @FXML public ListView allUsersList;
-    @FXML public Label systemCreatedLabel;
-    @FXML public Label systemNameLabel;
-    @FXML public Label currentUserLabel;
-    @FXML public Button manageUserBtn;
+    @FXML
+    public Button manageUsersBtn;
+    @FXML
+    public Button showSystemInfoBtn;
+    @FXML
+    public ListView rootCategoriesList;
+    @FXML
+    public MenuItem addRootCategoryBtn;
+    @FXML
+    public MenuItem deleteRootCategoryBtn;
+    @FXML
+    public Label userLabel;
+    @FXML
+    public Button accessSelectedRootCategoryBtn;
+    @FXML
+    public ListView allUsersList;
+    @FXML
+    public Label systemCreatedLabel;
+    @FXML
+    public Label systemNameLabel;
+    @FXML
+    public Label currentUserLabel;
+    @FXML
+    public Button manageUserBtn;
     public Button userAddBtn;
     public Button userRemoveBtn;
     public Button logOutBtn;
@@ -66,9 +78,8 @@ public class SystemRootPageController implements Initializable {
     }
 
     private void refreshUsersList() {
-        if(allUsersList.getItems().size() > 0) allUsersList.getItems().clear();
-        for (User user : userHibernate.getUsersList())
-        {
+        if (allUsersList.getItems().size() > 0) allUsersList.getItems().clear();
+        for (User user : userHibernate.getUsersList()) {
             allUsersList.getItems().add(user.getUserID() + ": " + user.getUsername());
         }
     }
@@ -111,8 +122,7 @@ public class SystemRootPageController implements Initializable {
         UserManagementFormController userManagementFormController = loader.getController();
 
         User userToEdit = getSelectedUser();
-        if (userToEdit != null)
-        {
+        if (userToEdit != null) {
             userManagementFormController.setUserBeingEdited(userToEdit);
             userManagementFormController.setCurrentUser(user);
             userManagementFormController.setSystemRoot(systemRoot);
@@ -140,8 +150,7 @@ public class SystemRootPageController implements Initializable {
         dialog.setContentText("Root category name: ");
 
         Optional<String> result = dialog.showAndWait();
-        if (result.isPresent() && result.get() != "")
-        {
+        if (result.isPresent() && result.get() != "") {
             Category categoryToAdd = new Category(result.get(), new ArrayList<User>(), new ArrayList<Category>(), null, 0, new ArrayList<Receivable>(), new ArrayList<Payment>());
             categoryHibernate.create(categoryToAdd);
             systemRoot.setRootCategories(categoryHibernate.getRootCategories());
@@ -149,18 +158,16 @@ public class SystemRootPageController implements Initializable {
         }
     }
 
-    public void refreshRootCategoriesListView()
-    {
+    public void refreshRootCategoriesListView() {
         if (rootCategoriesList.getItems().size() > 0) rootCategoriesList.getItems().clear();
-        for (Category category : categoryHibernate.getRootCategories())
-        {
+        for (Category category : categoryHibernate.getRootCategories()) {
             rootCategoriesList.getItems().add(category.getCategoryID() + ": " + category.getCategoryName());
         }
     }
 
     public void loadRootCategoryDeleteDialog(ActionEvent actionEvent) throws Exception {
 
-        if (systemRoot.getRootCategories().size()>0) {
+        if (systemRoot.getRootCategories().size() > 0) {
             ChoiceDialog<Category> dialog = new ChoiceDialog<Category>(systemRoot.getRootCategories().get(0), systemRoot.getRootCategories());
             dialog.setTitle("Delete root category");
             dialog.setHeaderText(null);
@@ -204,32 +211,22 @@ public class SystemRootPageController implements Initializable {
             stage.setTitle("Accounting system");
             stage.setScene(new Scene(root));
             stage.show();
-        }
-        else {
-            Stage stage = (Stage) accessSelectedRootCategoryBtn.getScene().getWindow();
-            AlertBox alertBox = new AlertBox();
-            alertBox.displayError(stage, "Category not selected", "Please select a category you would like to access");
+        } else {
+            AlertBox.displayError("Category not selected", "Please select a category you would like to access");
         }
     }
 
     public void removeUser(ActionEvent actionEvent) {
 
 
-        if (allUsersList.getItems().size() > 0){
+        if (allUsersList.getItems().size() > 0) {
 
             User selectedUser = getSelectedUser();
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmation Dialog");
-            alert.setHeaderText(null);
-            alert.setContentText("Are you sure?");
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == ButtonType.OK){
-                for (int i=0;i<systemRoot.getUsers().size();i++)
-                {
-                    if (systemRoot.getUsers().get(i).getUserID() == selectedUser.getUserID())
-                    {
+            Optional<ButtonType> result = AlertBox.displayConfirmation("Confirmation Dialog", "Are you sure?");
+            if (result.get() == ButtonType.OK) {
+                for (int i = 0; i < systemRoot.getUsers().size(); i++) {
+                    if (systemRoot.getUsers().get(i).getUserID() == selectedUser.getUserID()) {
                         userHibernate.remove(systemRoot.getUsers().get(i).getUserID());
                         systemRoot.getUsers().remove(i);
                         allUsersList.getItems().remove(i);

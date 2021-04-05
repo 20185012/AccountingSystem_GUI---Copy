@@ -25,31 +25,56 @@ import java.util.ResourceBundle;
 public class LoginPageController implements Initializable {
 
 
-    @FXML public Label registerPrompt;
-    @FXML public Label loginPrompt;
-    @FXML public Label usernameLoginRequired;
-    @FXML public Label passwordLoginRequired;
-    @FXML public Label nameRegisterRequired;
-    @FXML public Label usernameRegisterRequired;
-    @FXML public Label passwordRegisterRequired;
-    @FXML public RadioButton individualUserToggle;
-    @FXML public RadioButton legalUserToggle;
-    @FXML public Button loginBtn;
-    @FXML public TextField nameTextFieldRegister;
-    @FXML public TextField usernameTextFieldRegister;
-    @FXML public PasswordField passwordFieldRegister;
-    @FXML public TextField usernameTextFieldLogin;
-    @FXML public PasswordField passwordFieldLogin;
-    @FXML public Button registerBtn;
-    @FXML public TextField addressTextFieldRegister;
-    @FXML public TextField companyCodeTextFieldRegister;
-    @FXML public TextField surnameTextFieldRegister;
-    @FXML public ToggleGroup radioButtonsForUserTypes;
-    @FXML public TextField emailTextFieldRegister;
-    @FXML public Label emailLabel;
-    @FXML public Label phoneLabel;
-    @FXML public Label userTypeLabel;
-    @FXML public TextField phoneTextFieldRegister;
+    @FXML
+    public Label registerPrompt;
+    @FXML
+    public Label loginPrompt;
+    @FXML
+    public Label usernameLoginRequired;
+    @FXML
+    public Label passwordLoginRequired;
+    @FXML
+    public Label nameRegisterRequired;
+    @FXML
+    public Label usernameRegisterRequired;
+    @FXML
+    public Label passwordRegisterRequired;
+    @FXML
+    public RadioButton individualUserToggle;
+    @FXML
+    public RadioButton legalUserToggle;
+    @FXML
+    public Button loginBtn;
+    @FXML
+    public TextField nameTextFieldRegister;
+    @FXML
+    public TextField usernameTextFieldRegister;
+    @FXML
+    public PasswordField passwordFieldRegister;
+    @FXML
+    public TextField usernameTextFieldLogin;
+    @FXML
+    public PasswordField passwordFieldLogin;
+    @FXML
+    public Button registerBtn;
+    @FXML
+    public TextField addressTextFieldRegister;
+    @FXML
+    public TextField companyCodeTextFieldRegister;
+    @FXML
+    public TextField surnameTextFieldRegister;
+    @FXML
+    public ToggleGroup radioButtonsForUserTypes;
+    @FXML
+    public TextField emailTextFieldRegister;
+    @FXML
+    public Label emailLabel;
+    @FXML
+    public Label phoneLabel;
+    @FXML
+    public Label userTypeLabel;
+    @FXML
+    public TextField phoneTextFieldRegister;
 
 
     private SystemRoot systemRoot;
@@ -79,15 +104,13 @@ public class LoginPageController implements Initializable {
 
         System.out.println(systemRoot.getUsers());
 
-        if (systemRoot.getUsers().size() > 0)
-        {
+        if (systemRoot.getUsers().size() > 0) {
             systemRoot.
                     getUsers().
                     forEach(
                             user -> {
                                 if (user.getUsername().equals(usernameTextFieldLogin.getText()) &&
-                                    user.getPassword().equals(passwordFieldLogin.getText()))
-                                {
+                                        user.getPassword().equals(passwordFieldLogin.getText())) {
                                     try {
                                         loadMainWindow(user);
                                     } catch (IOException e) {
@@ -95,11 +118,9 @@ public class LoginPageController implements Initializable {
                                     }
                                 }
 
-            });
+                            });
             loginPrompt.setText("Username or password is wrong");
-        }
-        else
-        {
+        } else {
             loginPrompt.setText("There are no users in the system");
         }
         loginPrompt.setVisible(true);
@@ -159,13 +180,9 @@ public class LoginPageController implements Initializable {
                 userHibernate.create(userBeingRegistered);
                 systemRoot.getUsers().add(userBeingRegistered);
                 registerPromtWhenRegisterSuccessful(userBeingRegistered);
-            }
-            else registerPromptWhenDataMissing();
-        }
-        else {
-            AlertBox alertBox = new AlertBox();
-            Stage stage = (Stage) registerBtn.getScene().getWindow();
-            alertBox.displayError(stage, "Email not valid","Email is not in valid format, please enter email correctly.");
+            } else registerPromptWhenDataMissing();
+        } else {
+            AlertBox.displayError("Email not valid", "Email is not in valid format, please enter email correctly.");
         }
 
     }
@@ -210,20 +227,17 @@ public class LoginPageController implements Initializable {
     private boolean requiredFieldsFilled() {
         boolean isNotEmpty = true;
 
-        if (nameTextFieldRegister.getText().equals(""))
-        {
+        if (nameTextFieldRegister.getText().equals("")) {
             nameRegisterRequired.setVisible(true);
             isNotEmpty = false;
         }
 
-        if (usernameTextFieldRegister.getText().equals(""))
-        {
+        if (usernameTextFieldRegister.getText().equals("")) {
             usernameRegisterRequired.setVisible(true);
             isNotEmpty = false;
         }
 
-        if (passwordFieldRegister.getText().equals(""))
-        {
+        if (passwordFieldRegister.getText().equals("")) {
             passwordRegisterRequired.setVisible(true);
             isNotEmpty = false;
         }
@@ -252,8 +266,7 @@ public class LoginPageController implements Initializable {
         companyCodeTextFieldRegister.setOpacity(0.3);
     }
 
-    public void toggleLegalUser(ActionEvent actionEvent)
-    {
+    public void toggleLegalUser(ActionEvent actionEvent) {
         surnameTextFieldRegister.setText("Only for individual user");
         surnameTextFieldRegister.setEditable(false);
         surnameTextFieldRegister.setDisable(true);

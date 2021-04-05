@@ -1,5 +1,3 @@
-package Unit_tests;
-
 import Utils.DataValidity;
 import org.junit.Test;
 

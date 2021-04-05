@@ -2,31 +2,46 @@ package Utils;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.control.ButtonType;
+
+import java.util.Optional;
 
 public class AlertBox {
 
     @FXML
-    public void displayError(Stage stage, String title, String message) {
-
-        Alert alert = new Alert(Alert.AlertType.ERROR, "");
-        alert.initModality(Modality.APPLICATION_MODAL);
-        alert.initOwner(stage);
-        alert.getDialogPane().setContentText(message);
-        alert.getDialogPane().setHeaderText(title);
+    public static void displayError(String header, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(header);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
     @FXML
-    public void displayWarning(Stage stage, String title, String message) {
+    public static void displayWarning(String header, String message) {
 
-        Alert alert = new Alert(Alert.AlertType.WARNING, "");
-        alert.initModality(Modality.APPLICATION_MODAL);
-        alert.initOwner(stage);
-        alert.getDialogPane().setContentText(message);
-        alert.getDialogPane().setHeaderText(title);
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText(header);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
+    @FXML
+    public static Optional<ButtonType> displayConfirmation(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        return alert.showAndWait();
+    }
+
+    @FXML
+    public static Optional<ButtonType> displayAlert(String header, String title, String message, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(message);
+        return alert.showAndWait();
+    }
 }

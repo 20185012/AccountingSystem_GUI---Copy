@@ -1,9 +1,5 @@
-package Unit_tests;
-
 import Utils.DataValidity;
 import org.junit.Test;
-
-import javax.validation.constraints.AssertFalse;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
